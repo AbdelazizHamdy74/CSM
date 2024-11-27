@@ -52,12 +52,12 @@ exports.up = async function (knex) {
   await knex.schema.createTable("users", (table) => {
     table.string("id", 36).primary();
     table.string("HrId", 36).unique();
-    table
-      .string("company_id", 36)
-      .references("id")
+    table.string("company_id", 36).references("id")
       .inTable("company")
       .onDelete("CASCADE");
     table.string("name").notNullable();
+    table.string("password").notNullable();
+    table.string("email").unique().notNullable();
     table.enu("role", ["Admin", "Customer", "Support"]).notNullable();
     table.string("phone", 15).unique().notNullable();
     table.boolean("isDeleted").defaultTo(false);
