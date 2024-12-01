@@ -42,17 +42,17 @@ const login = async (req, res) => {
             return res.status(401).json({ success:false,massage:"Invalid email or password"})
          }
          console.log(user)
-        //  const isPasswordValid= await bcrypt.compare(password,user.password)
+         const isPasswordValid= await bcrypt.compare(password,user.password)
            
-        //  if(!isPasswordValid){
-        //     return res.status(401).json({ success:false,massage:"Invalid password"})
-        //  }
+         if(!isPasswordValid){
+            return res.status(401).json({ success:false,massage:"Invalid password"})
+         }
+
          const token = genrateToken({id:user.id,email:user.email,role:user.role});
            res.cookie('token',token,{
             maxAge: 30 * 24 * 60 * 60 * 1000
            })
-
-         res.status(200).json({success:true,massage:'Login successful',token:token,role:user.role})
+         res.status(200).json({success:true,massage:'Login successful',token:token,role:user.role,user:user})
 
     }catch(error){
         console.error(error);

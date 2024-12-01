@@ -1,8 +1,14 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const cors = require("cors");
 const {authenticate}=require('./utlis/middleware/authenticate')
 const {authorize}=require('./utlis/middleware/authorization')
+
 const app = express();
+app.use(cors({
+  origin:'http://localhost:4200',
+  credentials:true
+}));
 app.use(cookieParser())
 app.use(express.json());
 // Import Routes
