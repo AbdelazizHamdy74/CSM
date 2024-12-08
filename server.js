@@ -15,6 +15,8 @@ app.use(cookieParser())
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Import Routes
 const assetRoutes = require("./src/asset/assetRoute");
 const authRoutes=require("./src/authentication/authRouter")
@@ -29,5 +31,5 @@ app.use("/api/notes",authenticate,authorize(['Admin','Support']) , noteRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`App running running on port ${PORT}`);
+  console.log(`App running on port ${PORT}`);
 });

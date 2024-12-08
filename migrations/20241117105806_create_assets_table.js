@@ -119,41 +119,49 @@ exports.up = async function (knex) {
     table.string("guiId", 36).unique();
     table
       .string("user_id", 36)
+      .nullable()
       .references("id")
       .inTable("users")
       .onDelete("CASCADE");
     table
       .string("contract_id", 36)
+      .nullable()
       .references("id")
       .inTable("contracts")
       .onDelete("CASCADE");
     table
       .string("product_category_id", 36)
+      .nullable()
       .references("id")
       .inTable("product_category")
       .onDelete("CASCADE");
     table
       .string("product_sub_category_id", 36)
+      .nullable()
       .references("id")
       .inTable("product_sub_category")
       .onDelete("CASCADE");
     table
       .string("company_id", 36)
+      .nullable()
       .references("id")
       .inTable("company")
       .onDelete("CASCADE");
     table
       .string("asset_site_id", 36)
+      .nullable()
       .references("id")
       .inTable("asset_site")
       .onDelete("CASCADE");
     table
       .string("service_id", 36)
+      .nullable()
       .references("id")
       .inTable("service")
       .onDelete("CASCADE");
     table
       .string("notes_id", 36)
+      .nullable()
       .references("id")
       .inTable("notes")
       .onDelete("CASCADE");

@@ -1,14 +1,29 @@
 // routes/assetRoutes.js
 const express = require("express");
 
-const { getAllAssets, deleteAsset } = require("./assetController");
+const {
+  getAllAssets,
+  createAsset,
+  deleteAsset,
+  getAssetById,
+  updateAsset,
+  uploadAssetImage,
+  resizeImage,
+} = require("./assetController");
 const { validateQuery } = require("../../utlis/middleware/validateQuery");
 
 const { validateGetAllAssets } = require("./assetValidation");
 
 const router = express.Router();
-router.route("/").get(validateQuery(validateGetAllAssets), getAllAssets);
+router
+  .route("/")
+  .get(validateQuery(validateGetAllAssets), getAllAssets)
+  .post(uploadAssetImage, resizeImage, createAsset);
 
-router.route("/:id").delete(deleteAsset);
+router
+  .route("/:id")
+  .put(uploadAssetImage, resizeImage, updateAsset)
+  .get(getAssetById)
+  .delete(deleteAsset);
 
 module.exports = router;
