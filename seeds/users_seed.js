@@ -12,6 +12,8 @@ exports.seed = async function (knex) {
       name: "User One",
       role: "Admin",
       phone: "1234567890",
+      email:"admin@exp.com",
+      password:"Admin@1234",
       isDeleted: false,
     },
     {
@@ -21,6 +23,8 @@ exports.seed = async function (knex) {
       name: "User Two",
       role: "Customer",
       phone: "0987654321",
+      email:"customer@exp.com",
+      password:"Customer@1234",
       isDeleted: false,
     },
     {
@@ -30,6 +34,8 @@ exports.seed = async function (knex) {
       name: "User Three",
       role: "Support",
       phone: "1122334455",
+      email:"support@exp.com",
+      password:"Support@1234",
       isDeleted: false,
     },
   ]);
