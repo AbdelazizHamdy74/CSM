@@ -25,7 +25,7 @@ const noteRoutes=require("./src/notes/route")
 // Use Routes
 app.use("/auth",authRoutes)
 app.use("/users",usersRoutes)
-app.use("/api/assets",authenticate,authorize(['Admin','Support']) ,assetRoutes);
+app.use("/api/assets" ,authenticate,authorize(['Admin','Support']), assetRoutes);
 app.use("/api/notes",authenticate,authorize(['Admin','Support']) , noteRoutes);
 
 

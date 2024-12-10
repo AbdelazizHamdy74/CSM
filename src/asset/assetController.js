@@ -59,6 +59,8 @@ exports.createAsset = asyncHandler(async (req, res) => {
     productCategoryName,
     productSubCategoryName,
     serviceName,
+    companyName,
+    AssetSite,
     isDeleted = false,
     ...assetData
   } = req.body;
@@ -69,6 +71,16 @@ exports.createAsset = asyncHandler(async (req, res) => {
     .first();
   if (!productCategory) {
     return res.status(400).json({ message: "Invalid product category name" });
+  }
+  const company = await knex("company").where({ name: companyName }).first();
+  if (!company) {
+    return res.status(400).json({ message: "Invalid company name" });
+  }
+  const assetSite = await knex("asset_site")
+    .where({ name: AssetSite })
+    .first();
+  if (!assetSite) {
+    return res.status(400).json({ message: "Invalid asset site name" });
   }
 
   const productSubCategory = await knex("product_sub_category")
@@ -96,6 +108,8 @@ exports.createAsset = asyncHandler(async (req, res) => {
     product_category_id: productCategory.id,
     product_sub_category_id: productSubCategory.id,
     service_id: service.id,
+    company_id: company.id,
+    asset_site_id: assetSite.id,
     ...assetData,
   };
   // if user attach image then add atribute attach_image
