@@ -22,11 +22,13 @@ const assetRoutes = require("./src/asset/assetRoute");
 const authRoutes=require("./src/authentication/authRouter")
 const usersRoutes=require("./src/users/userRouter")
 const noteRoutes=require("./src/notes/route")
+const contractRoutes=require("./src/contract/contractRouter")
 // Use Routes
 app.use("/auth",authRoutes)
 app.use("/users",usersRoutes)
 app.use("/api/assets" ,authenticate,authorize(['Admin','Support']), assetRoutes);
 app.use("/api/notes",authenticate,authorize(['Admin','Support']) , noteRoutes);
+app.use("/api/contracts",authenticate,authorize(['Admin','Support']) , contractRoutes);
 
 
 const PORT = process.env.PORT || 3000;
