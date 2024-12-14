@@ -52,7 +52,9 @@ exports.up = async function (knex) {
   await knex.schema.createTable("users", (table) => {
     table.string("id", 36).primary();
     table.string("HrId", 36).unique();
-    table.string("company_id", 36).references("id")
+    table
+      .string("company_id", 36)
+      .references("id")
       .inTable("company")
       .onDelete("CASCADE");
     table.string("name").notNullable();
@@ -87,12 +89,14 @@ exports.up = async function (knex) {
       .onDelete("CASCADE");
     table
       .string("service_id", 36)
+      .nullable()
       .references("id")
       .inTable("service")
       .onDelete("CASCADE");
     table
       .string("notes_id", 36)
       .references("id")
+      .nullable()
       .inTable("notes")
       .onDelete("CASCADE");
     table.string("period", 50).notNullable();
