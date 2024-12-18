@@ -7,6 +7,7 @@ const {
   deleteAsset,
   getAssetById,
   updateAsset,
+  getAssetsByContractId,
   uploadAssetImage,
   resizeImage,
 } = require("./assetController");
@@ -26,4 +27,5 @@ router
   .get(getAssetById)
   .delete(deleteAsset);
 
+router.get("/by-contract/:contractId", getAssetsByContractId);
 module.exports = router;

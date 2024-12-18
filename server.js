@@ -25,22 +25,23 @@ const authRoutes = require("./src/authentication/authRouter");
 const usersRoutes = require("./src/users/userRouter");
 const noteRoutes = require("./src/notes/route");
 const contractRoutes = require("./src/contract/contractsRoutes");
+const companyRoutes = require("./src/company/companyRoutes");
 
 // Use Routes
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/api/contracts", contractRoutes);
-
+app.use("/api/companies", companyRoutes);
 app.use(
   "/api/assets",
-  // authenticate,
-  // authorize(["Admin", "Support"]),
+  authenticate,
+  authorize(["Admin", "Support"]),
   assetRoutes
 );
 app.use(
   "/api/notes",
-  // authenticate,
-  // authorize(["Admin", "Support"]),
+  authenticate,
+  authorize(["Admin", "Support"]),
   noteRoutes
 );
 

@@ -95,8 +95,9 @@ exports.up = async function (knex) {
       .onDelete("CASCADE");
     table
       .string("notes_id", 36)
-      .references("id")
       .nullable()
+      .references("id")
+
       .inTable("notes")
       .onDelete("CASCADE");
     table.string("period", 50).notNullable();

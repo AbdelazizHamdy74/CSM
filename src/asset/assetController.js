@@ -54,6 +54,70 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   next();
 });
 // Create Asset
+// exports.createAsset = asyncHandler(async (req, res) => {
+//   const {
+//     productCategoryName,
+//     productSubCategoryName,
+//     serviceName,
+//     companyName,
+//     AssetSite,
+//     isDeleted = false,
+//     ...assetData
+//   } = req.body;
+
+//   // find names related by id's
+//   const productCategory = await knex("product_category")
+//     .where({ name: productCategoryName })
+//     .first();
+//   if (!productCategory) {
+//     return res.status(400).json({ message: "Invalid product category name" });
+//   }
+//   const company = await knex("company").where({ name: companyName }).first();
+//   if (!company) {
+//     return res.status(400).json({ message: "Invalid company name" });
+//   }
+//   const assetSite = await knex("asset_site").where({ name: AssetSite }).first();
+//   if (!assetSite) {
+//     return res.status(400).json({ message: "Invalid asset site name" });
+//   }
+
+//   const productSubCategory = await knex("product_sub_category")
+//     .where({ name: productSubCategoryName })
+//     .first();
+//   if (!productSubCategory) {
+//     return res
+//       .status(400)
+//       .json({ message: "Invalid product sub-category name" });
+//   }
+
+//   const service = await knex("service").where({ name: serviceName }).first();
+//   if (!service) {
+//     return res.status(400).json({ message: "Invalid service name" });
+//   }
+
+//   const assetId = uuidv4();
+//   const timestamp = new Date().getTime();
+//   const newGuiId = `AS${timestamp}`;
+
+//   const newAssetData = {
+//     id: assetId,
+//     guiId: newGuiId,
+//     product_category_id: productCategory.id,
+//     product_sub_category_id: productSubCategory.id,
+//     service_id: service.id,
+//     company_id: company.id,
+//     asset_site_id: assetSite.id,
+//     ...assetData,
+//   };
+//   // if user attach image then add atribute attach_image
+//   if (req.body.attach_image) {
+//     newAssetData.attach_image = req.body.attach_image;
+//   }
+
+//   const newAsset = await knex("assets").insert(newAssetData).returning("*");
+
+//   res.status(201).json({ message: "Asset created successfully", newAsset });
+// });
 exports.createAsset = asyncHandler(async (req, res) => {
   const {
     productCategoryName,
@@ -65,24 +129,33 @@ exports.createAsset = asyncHandler(async (req, res) => {
     ...assetData
   } = req.body;
 
-  // find names related by id's
+  // find product category by name
   const productCategory = await knex("product_category")
     .where({ name: productCategoryName })
     .first();
   if (!productCategory) {
     return res.status(400).json({ message: "Invalid product category name" });
   }
-  const company = await knex("company").where({ name: companyName }).first();
-  if (!company) {
-    return res.status(400).json({ message: "Invalid company name" });
-  }
-  const assetSite = await knex("asset_site")
-    .where({ name: AssetSite })
-    .first();
-  if (!assetSite) {
-    return res.status(400).json({ message: "Invalid asset site name" });
+
+  // find company by name if provided, otherwise skip
+  let company;
+  if (companyName) {
+    company = await knex("company").where({ name: companyName }).first();
+    if (!company) {
+      return res.status(400).json({ message: "Invalid company name" });
+    }
   }
 
+  // find asset site by name if provided, otherwise skip
+  let assetSite;
+  if (AssetSite) {
+    assetSite = await knex("asset_site").where({ name: AssetSite }).first();
+    if (!assetSite) {
+      return res.status(400).json({ message: "Invalid asset site name" });
+    }
+  }
+
+  // find product sub-category by name
   const productSubCategory = await knex("product_sub_category")
     .where({ name: productSubCategoryName })
     .first();
@@ -92,12 +165,12 @@ exports.createAsset = asyncHandler(async (req, res) => {
       .json({ message: "Invalid product sub-category name" });
   }
 
+  // find service by name
   const service = await knex("service").where({ name: serviceName }).first();
   if (!service) {
     return res.status(400).json({ message: "Invalid service name" });
   }
 
-  // إنشاء معرّفات جديدة لـ asset
   const assetId = uuidv4();
   const timestamp = new Date().getTime();
   const newGuiId = `AS${timestamp}`;
@@ -108,23 +181,86 @@ exports.createAsset = asyncHandler(async (req, res) => {
     product_category_id: productCategory.id,
     product_sub_category_id: productSubCategory.id,
     service_id: service.id,
-    company_id: company.id,
-    asset_site_id: assetSite.id,
+    company_id: company ? company.id : null, // Only set if company is provided
+    asset_site_id: assetSite ? assetSite.id : null, // Only set if assetSite is provided
     ...assetData,
   };
-  // if user attach image then add atribute attach_image
+
+  // if user attach image then add attribute attach_image
   if (req.body.attach_image) {
     newAssetData.attach_image = req.body.attach_image;
   }
 
-  // إدخال البيانات في جدول assets
+  // Insert the new asset
   const newAsset = await knex("assets").insert(newAssetData).returning("*");
 
   res.status(201).json({ message: "Asset created successfully", newAsset });
 });
+
+// Get All Assets
+// exports.getAllAssets = asyncHandler(async (req, res) => {
+//   //asset_type, asset_name, hrId, status, serial_number
+//   const {
+//     skip = 0,
+//     limit,
+//     asset_name,
+//     asset_type,
+//     status,
+//     serial_number,
+//     hrId,
+//   } = req.query;
+
+//   let query = knex("assets")
+//     .select(
+//       "assets.id",
+//       "assets.guiId",
+//       "assets.asset_name",
+//       "assets.serial_number",
+//       "assets.asset_type",
+//       "assets.status",
+//       "assets.priority",
+//       "assets.isDeleted",
+//       "assets.description",
+//       "assets.attach_image",
+//       "product_category.name as product_category_name",
+//       "product_sub_category.name as product_sub_category_name",
+//       "service.name as service_name",
+//       "assets.created_at",
+//       "assets.updated_at"
+//     )
+//     .leftJoin(
+//       "product_category",
+//       "assets.product_category_id",
+//       "product_category.id"
+//     )
+//     .leftJoin(
+//       "product_sub_category",
+//       "assets.product_sub_category_id",
+//       "product_sub_category.id"
+//     )
+//     .leftJoin("service", "assets.service_id", "service.id")
+//     .where("assets.isDeleted", false);
+
+//   if (asset_name)
+//     query = query.andWhere("asset_name", "like", `%${asset_name}%`);
+//   if (asset_type) query = query.andWhere("asset_type", asset_type);
+//   if (status) query = query.andWhere("status", status);
+//   if (serial_number) query = query.andWhere("serial_number", serial_number);
+//   if (hrId) {
+//     query.andWhere("user_id", function () {
+//       this.select("id").from("users").where("HrId", hrId);
+//     });
+//   }
+//   const assets = await query.offset(Number(skip)).limit(Number(limit));
+//   res.status(200).json({
+//     success: true,
+//     "Number of assets:": assets.length,
+//     data: assets,
+//   });
+// });
+// //
 // Get All Assets
 exports.getAllAssets = asyncHandler(async (req, res) => {
-  //asset_type, asset_name, hrId, status, serial_number
   const {
     skip = 0,
     limit,
@@ -136,7 +272,7 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
   } = req.query;
 
   let query = knex("assets")
-    .select(
+    .select([
       "assets.id",
       "assets.guiId",
       "assets.asset_name",
@@ -147,12 +283,14 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
       "assets.isDeleted",
       "assets.description",
       "assets.attach_image",
-      "product_category.name as product_category_name",
-      "product_sub_category.name as product_sub_category_name",
-      "service.name as service_name",
+      "product_category.name as productCategoryName",
+      "product_sub_category.name as productSubCategoryName",
+      "service.name as serviceName",
+      "company.name as companyName",
+      "asset_site.name as assetSiteName",
       "assets.created_at",
-      "assets.updated_at"
-    )
+      "assets.updated_at",
+    ])
     .leftJoin(
       "product_category",
       "assets.product_category_id",
@@ -164,7 +302,9 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
       "product_sub_category.id"
     )
     .leftJoin("service", "assets.service_id", "service.id")
-    .where("assets.isDeleted", false);
+    .leftJoin("company", "assets.company_id", "company.id")
+    .leftJoin("asset_site", "assets.asset_site_id", "asset_site.id")
+    .where("assets.isDeleted", false); // only non deleted assets are returned
 
   if (asset_name)
     query = query.andWhere("asset_name", "like", `%${asset_name}%`);
@@ -176,26 +316,28 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
       this.select("id").from("users").where("HrId", hrId);
     });
   }
+
+  // Apply pagination
   const assets = await query.offset(Number(skip)).limit(Number(limit));
+
+  // Return response with success message and asset data
   res.status(200).json({
     success: true,
     "Number of assets:": assets.length,
     data: assets,
   });
 });
+
 // Update Asset
 exports.updateAsset = asyncHandler(async (req, res) => {
   const { id } = req.params;
   let updates = { ...req.body };
-
   console.log("Request body:", req.body);
-
   //  convert `supported` to Boolean
   if (updates.supported !== undefined) {
     updates.supported =
       updates.supported === "true" || updates.supported === true ? 1 : 0;
   }
-
   // Convert the datetime fields to MySQL format if they exist
   if (updates.created_at) {
     updates.created_at = new Date(updates.created_at)
@@ -216,7 +358,6 @@ exports.updateAsset = asyncHandler(async (req, res) => {
   }
   try {
     const updated = await knex("assets").where({ id }).update(updates);
-
     if (updated) {
       res
         .status(200)
@@ -230,16 +371,49 @@ exports.updateAsset = asyncHandler(async (req, res) => {
   }
 });
 // Get Single Asset
+// exports.getAssetById = asyncHandler(async (req, res) => {
+//   const asset = await knex("assets")
+//     .where({ id: req.params.id, isDeleted: false })
+//     .first();
+//   if (asset) {
+//     res.json(asset);
+//   } else {
+//     res.status(404).json({ error: "Asset not found" });
+//   }
+// });
 exports.getAssetById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
   const asset = await knex("assets")
-    .where({ id: req.params.id, isDeleted: false })
+    .select([
+      "assets.*",
+      "product_category.name as productCategoryName",
+      "product_sub_category.name as productSubCategoryName",
+      "service.name as serviceName",
+      "company.name as companyName",
+      "asset_site.name as assetSiteName",
+    ])
+    .leftJoin(
+      "product_category",
+      "assets.product_category_id",
+      "product_category.id"
+    )
+    .leftJoin(
+      "product_sub_category",
+      "assets.product_sub_category_id",
+      "product_sub_category.id"
+    )
+    .leftJoin("service", "assets.service_id", "service.id")
+    .leftJoin("company", "assets.company_id", "company.id")
+    .leftJoin("asset_site", "assets.asset_site_id", "asset_site.id")
+    .where("assets.id", id)
     .first();
-  if (asset) {
-    res.json(asset);
-  } else {
-    res.status(404).json({ error: "Asset not found" });
+
+  if (!asset) {
+    return res.status(404).json({ message: "Asset not found" });
   }
+  res.status(200).json({ message: "Asset retrieved successfully", asset });
 });
+
 // Get Deleted Assets
 exports.getAllDeletedAssets = asyncHandler(async (req, res) => {
   const { skip = 0, limit = 10 } = req.query;
@@ -262,6 +436,44 @@ exports.deleteAsset = asyncHandler(async (req, res) => {
   } else {
     res.status(404).json({ error: "Asset not found" });
   }
+});
+// Get Assets by Contract Id
+exports.getAssetsByContractId = asyncHandler(async (req, res) => {
+  const { contractId } = req.params;
+  if (!contractId) {
+    return res.status(400).json({ message: "Contract ID is required" });
+  }
+  const assets = await knex("assets")
+    .select(
+      "assets.*",
+      "product_category.name as productCategoryName",
+      "product_sub_category.name as productSubCategoryName",
+      "service.name as serviceName",
+      "company.name as companyName",
+      "asset_site.name as assetSiteName"
+    )
+    .leftJoin(
+      "product_category",
+      "assets.product_category_id",
+      "product_category.id"
+    )
+    .leftJoin(
+      "product_sub_category",
+      "assets.product_sub_category_id",
+      "product_sub_category.id"
+    )
+    .leftJoin("service", "assets.service_id", "service.id")
+    .leftJoin("company", "assets.company_id", "company.id")
+    .leftJoin("asset_site", "assets.asset_site_id", "asset_site.id")
+    .where("assets.contract_id", contractId)
+    .andWhere("assets.isDeleted", false);
+
+  if (!assets.length) {
+    return res
+      .status(404)
+      .json({ message: "No assets found for the provided contract ID" });
+  }
+  res.status(200).json({ message: "Assets retrieved successfully", assets });
 });
 
 // const generateRandomSerialNumber = async () => {
