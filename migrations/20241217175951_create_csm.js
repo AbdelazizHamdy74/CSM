@@ -103,6 +103,15 @@ exports.up = async function (knex) {
     table.string("period", 50).notNullable();
     table.enu("status", ["Active", "Down"]).defaultTo("Active");
     table.string("status_reason", 255).nullable();
+    table.date("start_date").nullable();
+    table.date("expiration_date").nullable();
+    table.date("notification_date").nullable();
+    table.integer("response_time").nullable();
+    table.integer("restoration_time").nullable();
+    table.integer("resolution_time").nullable();
+    table
+      .enu("support_window", ["24/7", "Business Hours", "Weekends"])
+      .nullable();
     table.boolean("isDeleted").defaultTo(false);
     table.timestamps(true, true);
   });
