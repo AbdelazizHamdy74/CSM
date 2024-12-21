@@ -288,6 +288,7 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
       "service.name as serviceName",
       "company.name as companyName",
       "asset_site.name as assetSiteName",
+      "contracts.id as contractId",
       "assets.created_at",
       "assets.updated_at",
     ])
@@ -304,8 +305,8 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
     .leftJoin("service", "assets.service_id", "service.id")
     .leftJoin("company", "assets.company_id", "company.id")
     .leftJoin("asset_site", "assets.asset_site_id", "asset_site.id")
-    .where("assets.isDeleted", false); // only non deleted assets are returned
-
+    .leftJoin("contracts", "assets.contract_id", "contracts.id")
+    .where("assets.isDeleted", false);
   if (asset_name)
     query = query.andWhere("asset_name", "like", `%${asset_name}%`);
   if (asset_type) query = query.andWhere("asset_type", asset_type);
@@ -316,11 +317,8 @@ exports.getAllAssets = asyncHandler(async (req, res) => {
       this.select("id").from("users").where("HrId", hrId);
     });
   }
-
-  // Apply pagination
   const assets = await query.offset(Number(skip)).limit(Number(limit));
 
-  // Return response with success message and asset data
   res.status(200).json({
     success: true,
     "Number of assets:": assets.length,
